@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
-    printf("Hello, World!\n");
+int vecinos(char* matrix, int i, int j) {
+    printf("%c\n", matrix[0]);
+}
 
+int main(int argc, char *argv[]) {
     // reading arguments
     int iterations = atoi(argv[1]);
     int matrix_rows = atoi(argv[2]);
@@ -12,8 +14,16 @@ int main(int argc, char *argv[]) {
     char *file_name = argv[4];
 
     // defining matrix
-    char matrix[matrix_rows][matrix_cols];
-    memset(matrix, 'o', sizeof matrix);
+//    char matrix[matrix_rows][matrix_cols];
+//    memset(matrix, 'o', sizeof matrix);
+    char* matrix = malloc(matrix_rows * matrix_cols * sizeof(char));
+
+    // printing game initial state
+    for (int i = 0; i < matrix_rows; i++) {
+        for (int j = 0; j < matrix_cols; j++) {
+            matrix[i*matrix_cols+j] = 'o';
+        }
+    }
 
     // fulling matrix with initial state from configuration file
     FILE *file_pointer = fopen(file_name, "r");
@@ -24,7 +34,7 @@ int main(int argc, char *argv[]) {
         int row = (int) strtol(line_of_file, &rest, 10);
         int column = (int) strtol(rest, &rest, 10);
 
-        matrix[row][column] = '-';
+        matrix[row*matrix_cols+column] = '-';
     }
 
     fclose(file_pointer);
@@ -32,10 +42,12 @@ int main(int argc, char *argv[]) {
     // printing game initial state
     for (int i = 0; i < matrix_rows; i++) {
         for (int j = 0; j < matrix_cols; j++) {
-            printf("%c", matrix[i][j]);
+            printf("%c", matrix[i*matrix_cols+j]);
             if (j == matrix_cols - 1) printf("\n");
         }
     }
+
+//    vecinos(&matrix, 5, 3);
 
     return 0;
 }
