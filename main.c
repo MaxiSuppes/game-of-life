@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
+#include <errno.h>
+
+static FILE *outfile;
 
 char *define_matrix(int rows, int cols) {
     char *matrix = malloc(rows * cols * sizeof(char));
@@ -119,7 +123,76 @@ void show(char *matrix, int matrix_rows, int matrix_cols) {
     printf("\n");
 }
 
+static void
+show_example(char *p)
+{
+    fprintf(stderr, "Example: \n");
+    fprintf(stderr,"\t%s 10 20 20\n", p);
+}
+
+static void
+show_help(char *msg) {
+    fprintf(stderr, "Uso:\n");
+    fprintf(stderr, "  conway -h\n");
+    fprintf(stderr, "  conway -v\n");
+    fprintf(stderr, "  conway i M N inputfile [-o outputprefix]\n");
+    fprintf(stderr, "Opciones:\n");
+    fprintf(stderr, "  -h, --help: Imprime este mensaje.\n");
+    fprintf(stderr, "  -v, --version: Da la versión del programa.\n");
+    fprintf(stderr, "  -o Prefijo de los archivos de salida.\n");
+}
+
+static void
+show_version()
+{
+    fprintf(stderr, "v1.0\n");
+}
+
 int main(int argc, char *argv[]) {
+
+    static struct option long_options[] = {
+            {"outfile", 1, 0, 'o'},
+            {"help", 0, 0, 'h'},
+            {"version", 0, 0, 'v'},
+            {0, 0, 0, 0}
+    };
+
+    int long_index = 0;
+    int opt;
+    outfile = stdout;
+
+    while ((opt = getopt_long(argc, argv, "o:hv", long_options, &long_index)) != -1) {
+
+        switch(opt) {
+            //TODO fix outfile
+            case 'o': /* outfile */
+                if (strcmp(optarg, "-") != 0) {
+                    errno = 0;
+                    outfile = fopen(optarg, "w");
+
+                    if (!outfile) {
+                        fprintf(stderr, "Unable to open outfile %s: errno %d\n", optarg, errno);
+                        exit(2);
+                    }
+                }
+                break;
+            case 'h': /* help */
+                show_help(argv[0]);
+                exit(0);
+                break;
+
+            case 'v': /* version */
+                show_version();
+                exit(0);
+                break;
+
+            default:
+                fprintf(stderr, "Unrecognized option %c\n", opt );
+                show_help(argv[0]);
+                exit(1);
+        }
+    }
+
     // reading arguments
     int iterations = atoi(argv[1]);
     int matrix_rows = atoi(argv[2]);
