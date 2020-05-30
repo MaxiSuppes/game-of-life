@@ -4,8 +4,6 @@
 #include <getopt.h>
 #include <errno.h>
 
-static FILE *outfile;
-
 char *define_matrix(int rows, int cols) {
     char *matrix = malloc(rows * cols * sizeof(char));
 
@@ -124,10 +122,9 @@ void show(char *matrix, int matrix_rows, int matrix_cols) {
 }
 
 static void
-show_example(char *p)
-{
+show_example(char *p) {
     fprintf(stderr, "Example: \n");
-    fprintf(stderr,"\t%s 10 20 20\n", p);
+    fprintf(stderr, "\t%s 10 20 20\n", p);
 }
 
 static void
@@ -140,42 +137,111 @@ show_help(char *msg) {
     fprintf(stderr, "  -h, --help: Imprime este mensaje.\n");
     fprintf(stderr, "  -v, --version: Da la versión del programa.\n");
     fprintf(stderr, "  -o Prefijo de los archivos de salida.\n");
+    fprintf(stderr, "Ejemplos:\n");
+    fprintf(stderr, "  conway 10 20 20 glider -o estado.\n");
+    fprintf(stderr, "  Representa 10 iteraciones del Juego de la Vida en una matriz de 20x20,\n");
+    fprintf(stderr, "  con un estado inicial tomado del archivo ‘‘glider’’.\n");
+    fprintf(stderr, "  Los archivos de salida se llamarán estado_n.pbm.\n");
+    fprintf(stderr, "  Si no se da un prefijo para los archivos de salida,\n");
+    fprintf(stderr, "  el prefijo será el nombre del archivo de entrada.\n");
 }
 
 static void
-show_version()
-{
+show_version() {
     fprintf(stderr, "v1.0\n");
+}
+
+int get_value(int fil, int col, int matrix_cols, char *matrix) {
+    char value = matrix[fil * matrix_cols + col];
+    if (value == '-') {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+#define PIXEL_WIDTH 50
+#define PIXEL_HEIGHT 50
+#define MIN_ARGUMENTS 5
+
+void generate_pbm(int iterations, int matrix_rows, int matrix_cols, char *matrix, char *file_name) {
+
+    int width = PIXEL_WIDTH;
+    int height = PIXEL_HEIGHT;
+
+    char buffer[30];
+    snprintf(buffer, sizeof(buffer), "%s_%d.pbm", file_name, iterations);
+    printf("Grabando %s\n", buffer);
+    //show(matrix, matrix_rows, matrix_cols);
+
+    FILE *outfile = fopen(buffer, "w");
+    // Header
+    fprintf(outfile, "%s\n", "P1");
+    // Width and Height
+    fprintf(outfile, "%d %d\n", matrix_cols * PIXEL_WIDTH, matrix_rows * PIXEL_HEIGHT);
+    int i, j, pixY, pixX;
+    // Writing the image
+    for (i = 0; i < matrix_rows; i++) {
+        for (pixY = 0; pixY < height; pixY++) {
+            for (j = 0; j < matrix_cols; j++) {
+                for (pixX = 0; pixX < width; pixX++) {
+                    int value = get_value(i, j, matrix_cols, matrix);
+                    fprintf(outfile, "%d ", value);
+                }
+            }
+            putc('\n', outfile);
+        }
+    }
+    fclose(outfile);
+}
+
+void game_of_life(int iterations, int matrix_rows, int matrix_cols, char *initial_state_file_name, char *file_name) {
+
+    char *matrix = define_matrix(matrix_rows, matrix_cols);
+    full_matrix_with_initial_state(matrix, matrix_cols, initial_state_file_name);
+
+    fprintf(stderr, "Leyendo estado inicial...\n");
+    generate_pbm(1, matrix_rows, matrix_cols, matrix, file_name);
+
+    int done_iterations = 2;
+    while (done_iterations <= iterations) {
+        evolve(matrix, matrix_rows, matrix_cols);
+        generate_pbm(done_iterations, matrix_rows, matrix_cols, matrix, file_name);
+
+        done_iterations++;
+    }
+    fprintf(stderr, "Listo.\n");
 }
 
 int main(int argc, char *argv[]) {
 
     static struct option long_options[] = {
             {"outfile", 1, 0, 'o'},
-            {"help", 0, 0, 'h'},
+            {"help",    0, 0, 'h'},
             {"version", 0, 0, 'v'},
-            {0, 0, 0, 0}
+            {0,         0, 0, 0}
     };
 
     int long_index = 0;
     int opt;
-    outfile = stdout;
 
     while ((opt = getopt_long(argc, argv, "o:hv", long_options, &long_index)) != -1) {
 
-        switch(opt) {
-            //TODO fix outfile
+        switch (opt) {
             case 'o': /* outfile */
                 if (strcmp(optarg, "-") != 0) {
-                    errno = 0;
-                    outfile = fopen(optarg, "w");
 
-                    if (!outfile) {
-                        fprintf(stderr, "Unable to open outfile %s: errno %d\n", optarg, errno);
-                        exit(2);
-                    }
+                    // reading arguments
+                    int iterations = atoi(argv[1]);
+                    int matrix_rows = atoi(argv[2]);
+                    int matrix_cols = atoi(argv[3]);
+                    char *initial_state_file_name = argv[4];
+                    char *file_name = argv[6];
+
+                    game_of_life(iterations, matrix_rows, matrix_cols, initial_state_file_name, file_name);
                 }
                 break;
+
             case 'h': /* help */
                 show_help(argv[0]);
                 exit(0);
@@ -187,29 +253,26 @@ int main(int argc, char *argv[]) {
                 break;
 
             default:
-                fprintf(stderr, "Unrecognized option %c\n", opt );
+                fprintf(stderr, "Unrecognized option %c\n", opt);
                 show_help(argv[0]);
                 exit(1);
         }
     }
 
-    // reading arguments
-    int iterations = atoi(argv[1]);
-    int matrix_rows = atoi(argv[2]);
-    int matrix_cols = atoi(argv[3]);
-    char *initial_state_file_name = argv[4];
+    if (argc == MIN_ARGUMENTS) {
 
+        // reading arguments
+        int iterations = atoi(argv[1]);
+        int matrix_rows = atoi(argv[2]);
+        int matrix_cols = atoi(argv[3]);
+        char *initial_state_file_name = argv[4];
 
-    char *matrix = define_matrix(matrix_rows, matrix_cols);
-    full_matrix_with_initial_state(matrix, matrix_cols, initial_state_file_name);
-    show(matrix, matrix_rows, matrix_cols);
+        game_of_life(iterations, matrix_rows, matrix_cols, initial_state_file_name, initial_state_file_name);
 
-    int done_iterations = 1;
-    while (done_iterations <= iterations) {
-        evolve(matrix, matrix_rows, matrix_cols);
-        show(matrix, matrix_rows, matrix_cols);
+    } else if (argc < MIN_ARGUMENTS) {
 
-        done_iterations++;
+        fprintf(stderr, "Error de argumentos.\n");
+        show_help(argv[0]);
     }
 
     return 0;
