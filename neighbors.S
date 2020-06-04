@@ -92,92 +92,92 @@ addi t1, t7, -1         # upPosition = M - 1
 up_and_left:
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t3, t7          # index = t5 = leftPosition * N
-add t5, t5, t1          # index = t5 = leftPosition * N + upPosition
-addu t5, t5, t6         # index = t5 = puntero a (leftPosition, upPosition)
+mul t5, t1, t7          # index = t5 = upPosition * N
+add t5, t5, t3          # index = t5 = upPosition * N + leftPosition
+addu t5, t5, t6         # index = t5 = puntero a (upPosition, leftPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[leftPosition, upPosition]
+lbu t5, (t5)            # t5 = matrix[upPosition, leftPosition]
 bne t5, t7, up
 addi t0, t0, 1          # living_neighbors += 1
 
 up:
-lw t6, LTA_i(fp)        # t6 = i
+lw t6, LTA_j(fp)        # t6 = j
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t6, t7          # index = t5 = i * N
-add t5, t5, t1          # index = t5 = i * N + upPosition
+mul t5, t1, t7          # index = t5 = upPosition * N
+add t5, t5, t6          # index = t5 = upPosition * N + j
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (i, upPosition)
+addu t5, t5, t6         # index = t5 = puntero a (upPosition, j)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[i, upPosition]
+lbu t5, (t5)            # t5 = matrix[upPosition, j]
 bne t5, t7, up_and_right
 addi t0, t0, 1          # living_neighbors += 1
 
 up_and_right:
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t4, t7          # index = t5 = rightPosition * N
-add t5, t5, t1          # index = t5 = rightPosition * N + upPosition
+mul t5, t1, t7          # index = t5 = upPosition * N
+add t5, t5, t4          # index = t5 = upPosition * N + rightPosition
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (rightPosition, upPosition)
+addu t5, t5, t6         # index = t5 = puntero a (upPosition, rightPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[rightPosition, upPosition]
+lbu t5, (t5)            # t5 = matrix[upPosition, rightPosition]
 bne t5, t7, left
 addi t0, t0, 1          # living_neighbors += 1
 
 left:
-lw t6, LTA_j(fp)        # t6 = j
+lw t6, LTA_i(fp)        # t6 = i
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t3, t7          # index = t5 = leftPosition * N
-add t5, t5, t6          # index = t5 = leftPosition * N + j
+mul t5, t6, t7          # index = t5 = i * N
+add t5, t5, t3          # index = t5 = i * N + leftPosition
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (leftPosition, j)
+addu t5, t5, t6         # index = t5 = puntero a (i, leftPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[leftPosition, j]
+lbu t5, (t5)            # t5 = matrix[i, leftPosition]
 bne t5, t7, right
 addi t0, t0, 1          # living_neighbors += 1
 
 right:
-lw t6, LTA_j(fp)        # t6 = j
+lw t6, LTA_i(fp)        # t6 = i
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t4, t7          # index = t5 = rightPosition * N
-add t5, t5, t6          # index = t5 = rightPosition * N + j
+mul t5, t6, t7          # index = t5 = i * N
+add t5, t5, t4          # index = t5 = i * N + rightPosition
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (rightPosition, j)
+addu t5, t5, t6         # index = t5 = puntero a (i, rightPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[rightPosition, j]
+lbu t5, (t5)            # t5 = matrix[i, rightPosition]
 bne t5, t7, down_and_left
 addi t0, t0, 1          # living_neighbors += 1
 
 down_and_left:
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t3, t7          # index = t5 = leftPosition * N
-add t5, t5, t2          # index = t5 = leftPosition * N + downPosition
+mul t5, t2, t7          # index = t5 = downPosition * N
+add t5, t5, t3          # index = t5 = downPosition * N + leftPosition
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (leftPosition, downPosition)
+addu t5, t5, t6         # index = t5 = puntero a (downPosition, leftPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[leftPosition, downPosition]
+lbu t5, (t5)            # t5 = matrix[downPosition, leftPosition]
 bne t5, t7, down
 addi t0, t0, 1          # living_neighbors += 1
 
 down:
-lw t6, LTA_i(fp)        # t6 = i
+lw t6, LTA_j(fp)        # t6 = j
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t6, t7          # index = t5 = i * N
-add t5, t5, t2          # index = t5 = i * N + downPosition
+mul t5, t2, t7          # index = t5 = downPosition * N
+add t5, t5, t6          # index = t5 = downPosition * N + j
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (i, downPosition)
+addu t5, t5, t6         # index = t5 = puntero a (downPosition, j)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[i, downPosition]
+lbu t5, (t5)            # t5 = matrix[downPosition, j]
 bne t5, t7, down_and_right
 addi t0, t0, 1          # living_neighbors += 1
 
 down_and_right:
 lw t7, LTA_N(fp)        # t7 = N
-mul t5, t4, t7          # index = t5 = rightPosition * N
-add t5, t5, t2          # index = t5 = rightPosition * N + downPosition
+mul t5, t2, t7          # index = t5 = downPosition * N
+add t5, t5, t4          # index = t5 = downPosition * N + rightPosition
 lw t6, LTA_a(fp)        # t6 = puntero a (0,0)
-addu t5, t5, t6         # index = t5 = puntero a (rightPosition, downPosition)
+addu t5, t5, t6         # index = t5 = puntero a (downPosition, rightPosition)
 li t7, '-'              # t7 = '-'
-lbu t5, (t5)            # t5 = matrix[rightPosition, downPosition]
+lbu t5, (t5)            # t5 = matrix[downPosition, rightPosition]
 bne t5, t7, return
 addi t0, t0, 1          # living_neighbors += 1
 
