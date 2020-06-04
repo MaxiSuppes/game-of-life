@@ -31,7 +31,7 @@ void full_matrix_with_initial_state(char *matrix, int matrix_cols, char *initial
     fclose(file_pointer);
 }
 
-unsigned int neighbors2(unsigned char *a, unsigned int i, unsigned int j, unsigned int M, unsigned int N) {
+unsigned int neighbors(unsigned char *a, unsigned int i, unsigned int j, unsigned int M, unsigned int N) {
     unsigned int living_neighbors = 0;
 
     int upPosition = (i - 1) % M;
@@ -48,33 +48,33 @@ unsigned int neighbors2(unsigned char *a, unsigned int i, unsigned int j, unsign
     }
 
     // vecino de arriba a la izquierda
-    if (a[leftPosition * N + upPosition] == '-') living_neighbors++;
+    if (a[upPosition * N + leftPosition] == '-') living_neighbors++;
 
     // vecino de arriba
-    if (a[i * N + upPosition] == '-') living_neighbors++;
+    if (a[upPosition * N + j] == '-') living_neighbors++;
 
     // vecino de arriba a la derecha
-    if (a[rightPosition * N + upPosition] == '-') living_neighbors++;
+    if (a[upPosition * N + rightPosition] == '-') living_neighbors++;
 
     // vecino de la izquierda
-    if (a[leftPosition * N + j] == '-') living_neighbors++;
+    if (a[i * N + leftPosition] == '-') living_neighbors++;
 
     // vecino de la derecha
-    if (a[rightPosition * N + j] == '-') living_neighbors++;
+    if (a[i * N + rightPosition] == '-') living_neighbors++;
 
     // vecino de abajo a la izquierda
-    if (a[leftPosition * N + downPosition] == '-') living_neighbors++;
+    if (a[downPosition * N + leftPosition] == '-') living_neighbors++;
 
     // vecino de abajo
-    if (a[i * N + downPosition] == '-') living_neighbors++;
+    if (a[downPosition * N + j] == '-') living_neighbors++;
 
     // vecino de abajo a la derecha
-    if (a[rightPosition * N + downPosition] == '-') living_neighbors++;
+    if (a[downPosition * N + rightPosition] == '-') living_neighbors++;
 
     return living_neighbors;
 }
 
-extern unsigned int neighbors(unsigned char* a, unsigned int i, unsigned int j, unsigned int M, unsigned int N);
+//extern unsigned int neighbors(unsigned char* a, unsigned int i, unsigned int j, unsigned int M, unsigned int N);
 
 void evolve(char *matrix, int matrix_rows, int matrix_cols) {
     // using auxiliary matrix to save partial updates
@@ -103,7 +103,6 @@ void evolve(char *matrix, int matrix_rows, int matrix_cols) {
 
 
     // fulling original matrix with auxiliary matrix updated state
-    auxiliary_matrix[matrix_rows][matrix_cols];
     for (int row_index = 0; row_index < matrix_rows; row_index++) {
         for (int col_index = 0; col_index < matrix_cols; col_index++) {
             matrix[row_index * matrix_cols + col_index] = auxiliary_matrix[row_index][col_index];
@@ -154,7 +153,7 @@ show_version() {
 
 int get_value(int fil, int col, int matrix_cols, char *matrix) {
     char value = matrix[fil * matrix_cols + col];
-    if (value == '-') {
+    if (value == 'o') {
         return 0;
     } else {
         return 1;
