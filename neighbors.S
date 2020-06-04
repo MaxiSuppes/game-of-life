@@ -81,9 +81,11 @@ addi t4, t6, 1          # t4 = j + 1
 div t4, t7              # H0 = (j+1) % N
 mfhi t4                 # rightPosition = t4 = (j+1) % N
 
-bne t6, 0, up_and_left  # if (j != 0) go to ciclo
+columns_edge_case:
+bne t6, 0, rows_edge_case  # if (j != 0) go to ciclo
 addi t3, t7, -1         # leftPosition = N - 1
 
+rows_edge_case:
 lw t6, LTA_i(fp)        # t6 = i
 lw t7, LTA_M(fp)        # t7 = M
 bne t6, 0, up_and_left  # if (i != 0) go to ciclo

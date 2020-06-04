@@ -31,7 +31,7 @@ void full_matrix_with_initial_state(char *matrix, int matrix_cols, char *initial
     fclose(file_pointer);
 }
 
-unsigned int neighbors(unsigned char *a, unsigned int i, unsigned int j, unsigned int M, unsigned int N) {
+unsigned int neighbors2(unsigned char *a, unsigned int i, unsigned int j, unsigned int M, unsigned int N) {
     unsigned int living_neighbors = 0;
 
     int upPosition = (i - 1) % M;
