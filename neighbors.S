@@ -27,9 +27,9 @@
 neighbors:
 // To be position independent
 .frame fp, STACK_SIZE, ra
-.set noreoder
+.set noreorder
 .cpload t9
-.set reoder
+.set reorder
 
 // Creating stack
 subu sp, sp, STACK_SIZE
